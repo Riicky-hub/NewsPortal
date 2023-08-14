@@ -1,5 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using NewsPortalWeb.Models;
+using NewsPortal.Models;
 using System.Diagnostics;
 
 namespace NewsPortalWeb.Controllers
