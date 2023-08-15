@@ -13,12 +13,13 @@ namespace NewsPortal.Models
         [Key]
         public int Id { get; set; }
         [Required]
-        [MaxLength(20, ErrorMessage = "Custom ModelError: There's a limit of 20 chars")]
+        [MinLength(2, ErrorMessage = "Min Length of the text is 2 chars")]
+        [MaxLength(20, ErrorMessage = "There's a limit of 20 chars")]
         [DisplayName("Category Name")]
         public string Name { get; set; }
         [Required]
         [DisplayName("Display Order")]
-        [Range(1, 100, ErrorMessage = "Custom ModelError: The display range must be between 1 and 100")]
+        [Range(1, 100, ErrorMessage = "The display range must be between 1 and 100")]
         public int DisplayOrder { get; set; }
     }
 }
