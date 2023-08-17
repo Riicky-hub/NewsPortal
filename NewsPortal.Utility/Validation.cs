@@ -14,11 +14,11 @@ namespace NewsPortal.Utility
             var isNumeric = int.TryParse(str, out _);
             return isNumeric;
         }
-        public static bool CategoryNameExists(List<Category> objCategoryList, string Name)
+        public static bool CategoryNameExists(List<Category> objCategoryList, string Name, int Id)
         {
             foreach (Category objCategory in objCategoryList)
             {
-                if (Name.ToLower() == objCategory.Name.ToLower())
+                if (Name.ToLower() == objCategory.Name.ToLower() && Id != objCategory.Id)
                 {
                     return true;
                 }
