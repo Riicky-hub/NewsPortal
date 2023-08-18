@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using NewsPortal.DataAccess;
+using NewsPortal.DataAccess.Data;
+using NewsPortal.DataAccess.Repository.IRepository;
 using NewsPortal.Models;
 using NewsPortal.Utility;
 
@@ -8,14 +9,14 @@ namespace NewsPortalWeb.Controllers
 {
     public class CategoryController : Controller
     {
-        private readonly ApplicationDbContext _db;
-        public CategoryController(ApplicationDbContext db)
+        private readonly IUnitOfWork _unitOfWork;
+        public CategoryController(IUnitOfWork unitOfWork)
         {
-            _db = db;
+            _unitOfWork = unitOfWork;
         }
         public IActionResult Index()
         {
-            List<Category> objCategoryList = _db.Categories.ToList();
+            List<Category> objCategoryList = _unitOfWork.Category.GetAll().ToList();
             return View(objCategoryList);
         }
         public IActionResult Create()
@@ -25,7 +26,7 @@ namespace NewsPortalWeb.Controllers
         [HttpPost]
         public IActionResult Create(Category obj)
         {
-            List<Category> objCategoryList = _db.Categories.ToList();
+            List<Category> objCategoryList = _unitOfWork.Category.GetAll().ToList();
             if(Validation.CategoryNameExists(objCategoryList, obj.Name, obj.Id))
             {
                 ModelState.AddModelError("Name", "Category name already exists");
@@ -36,8 +37,8 @@ namespace NewsPortalWeb.Controllers
             }
             if (ModelState.IsValid)
             {
-                _db.Categories.Add(obj);
-                _db.SaveChanges();
+                _unitOfWork.Category.Add(obj);
+                _unitOfWork.Save();
                 TempData["success"] = "Category created successfully";
                 return RedirectToAction("Index", "Category");
             }
@@ -49,7 +50,7 @@ namespace NewsPortalWeb.Controllers
             {
                 return NotFound();
             }
-            Category? category = _db.Categories.Find(id);
+            Category? category = _unitOfWork.Category.Get(u=>u.Id==id);
             if(category==null)
             {
                 return NotFound();
@@ -59,7 +60,7 @@ namespace NewsPortalWeb.Controllers
         [HttpPost]
         public IActionResult Edit(Category obj)
         {
-            List<Category> objCategoryList = _db.Categories.AsNoTracking().ToList();
+            List<Category> objCategoryList = _unitOfWork.Category.GetAll(false).ToList();
             if (Validation.CategoryNameExists(objCategoryList, obj.Name, obj.Id))
             {
                 ModelState.AddModelError("Name", "Category name already exists");
@@ -70,8 +71,8 @@ namespace NewsPortalWeb.Controllers
             }
             if (ModelState.IsValid)
             {
-                _db.Categories.Update(obj);
-                _db.SaveChanges();
+                _unitOfWork.Category.Update(obj);
+                _unitOfWork.Save();
                 TempData["success"] = "Category edited successfully";
                 return RedirectToAction("Index", "Category");
             }
@@ -83,7 +84,7 @@ namespace NewsPortalWeb.Controllers
             {
                 return NotFound();
             }
-            Category? category = _db.Categories.Find(id);
+            Category? category = _unitOfWork.Category.Get(u => u.Id == id);
             if (category == null)
             {
                 return NotFound();
@@ -93,13 +94,13 @@ namespace NewsPortalWeb.Controllers
         [HttpPost, ActionName("Delete")]
         public IActionResult DeletePOST(int? id)
         {
-            Category? obj = _db.Categories.Find(id);
-            if(obj == null)
+            Category? category = _unitOfWork.Category.Get(u => u.Id == id);
+            if (category == null)
             {
                 return NotFound();
             }
-            _db.Categories.Remove(obj);
-            _db.SaveChanges();
+            _unitOfWork.Category.Delete(category);
+            _unitOfWork.Save();
             TempData["success"] = "Category deleted successfully";
             return RedirectToAction("Index", "Category");
         }
